@@ -1,8 +1,7 @@
-import { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
-import { LayoutService } from './service/app.layout.service';
-import { StoreService } from '../_core/services/store.service';
+import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { StoreService } from '../_core/services/store.service';
+import { LayoutService } from './service/app.layout.service';
 
 @Component({
     selector: 'app-menu',
@@ -22,8 +21,11 @@ export class AppMenuComponent implements OnInit {
         // this.isAdmin = role.includes(environment.admin);
         // this.isUser = role.includes(environment.user);
         var role = this.storeService.get_DataSession('role');
-        this.isAdmin = role == environment.admin;
-        this.isUser = role == environment.user;
+        console.log(role);
+        this.isAdmin = role.toLowerCase() == environment.admin.toLowerCase();
+        this.isUser = role.toLowerCase() == environment.user.toLowerCase();
+
+        console.log(environment);
 
         if (this.isAdmin) {
             this.model = [
@@ -46,7 +48,6 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-user',
                             routerLink: ['/'],
                         },
-                        
                     ],
                 },
                 {
@@ -73,7 +74,6 @@ export class AppMenuComponent implements OnInit {
                             icon: 'pi pi-fw pi-sort-alt',
                             routerLink: ['/pages/operations'],
                         },
-                        
                     ],
                 },
             ];

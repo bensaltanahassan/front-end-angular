@@ -1,12 +1,9 @@
-import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { NotfoundComponent } from './demo/components/notfound/notfound.component';
-import { AppLayoutComponent } from './layout/app.layout.component';
-import { TransactionComponent } from './demo/components/pages/transaction/transaction.component';
+import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './_core/guards/auth.guard';
+import { NotfoundComponent } from './demo/components/notfound/notfound.component';
 import { HomeComponent } from './demo/components/pages/home/home.component';
-import { HasPermitionsGuard } from './_core/guards/has-permitions.guard';
-import { environment } from 'src/environments/environment';
+import { AppLayoutComponent } from './layout/app.layout.component';
 
 const routes: Routes = [
     {
@@ -16,8 +13,12 @@ const routes: Routes = [
             {
                 path: '',
                 component: HomeComponent,
-                canActivate: [AuthGuard, HasPermitionsGuard],
-                data: { allowedRoles: [environment.user, environment.admin] },
+                canActivate: [
+                    AuthGuard,
+
+                    // HasPermitionsGuard
+                ],
+                // data: { allowedRoles: [environment.user, environment.admin] },
             },
             {
                 path: 'pages',

@@ -52,8 +52,11 @@ export class ClientComponent implements OnInit {
 
         this.clientService.getAll().subscribe({
             next: (data: any) => {
+                console.log(data);
                 this.clients = data?.data.filter(
-                    (client) => client.role.id === 2
+                    (client) =>
+                        client.role.name.toLowerCase() ===
+                        'CLIENT'.toLowerCase()
                 );
             },
         });
@@ -265,7 +268,6 @@ export class ClientComponent implements OnInit {
             }
             this.clientDialog = false;
             this.initialseClient();
-            
         }
     }
 
