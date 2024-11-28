@@ -1,0 +1,290 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button
+                            pButton
+                            pRipple
+                            label="{{ 'New operation' }}"
+                            icon="pi pi-plus"
+                            class="w-full mr-2"
+                            (click)="openNew()"
+                        ></button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="right">
+                    <div class="my-2">
+                        <h5 class="m-0">Your Balance</h5>
+                        <span class="">{{ yourbalance }} MAD</span>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table
+                #dt
+                [value]="transactions"
+                [columns]="cols"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['name', 'fatherName', 'motherName']"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [rowHover]="true"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <h5 class="m-0">Historiques Opeartions</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="{{ 'Search...' }}"
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th
+                            [pSortableColumn]="col.field"
+                            *ngFor="let col of columns"
+                        >
+                            {{ col.header }}
+                            <p-sortIcon [field]="col.field"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-transaction>
+                    <tr>
+                        <td>
+                            <span *ngIf="!(transaction?.sender?.id == yourid)"
+                                >🟢</span
+                            >
+                            <span *ngIf="transaction?.sender?.id == yourid"
+                                >🔴</span
+                            >
+                            {{ transaction?.sender?.username }}
+                            <span *ngIf="transaction?.sender?.id == yourid"
+                                >(You)</span>
+                        </td>
+                        <td>
+                            {{ transaction?.sender?.email }}
+                        </td>
+                        <td>
+                            {{ transaction?.reciver?.username }}
+                            <span *ngIf="transaction?.reciver?.id == yourid"
+                                >(You)</span>
+                        </td>
+                        <td>
+                            {{ transaction?.reciver?.email }}
+                        </td>
+                        <td>
+                            <p-tag
+                                severity="success"
+                                *ngIf="!(transaction?.sender?.id == yourid)"
+                                >+ {{ transaction?.montant }} MAD</p-tag
+                            >
+                            <p-tag
+                                severity="danger"
+                                *ngIf="transaction?.sender?.id == yourid"
+                                >- {{ transaction?.montant }} MAD</p-tag
+                            >
+                        </td>
+                        <td>
+                            {{ transaction?.date | date : "dd/MM/yyyy" }}
+                        </td>
+                        <!-- <td>
+                            <div class="flex">
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-warning p-button-text mr-2"
+                                    (click)="edittransaction(transaction)"
+                                ></button>
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-trash"
+                                    class="p-button-rounded p-button-danger p-button-text mr-2"
+                                    (click)="deletetransaction(transaction)"
+                                ></button>
+                            </div>
+                        </td> -->
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog
+            [(visible)]="transactionDialog"
+            [style]="{ width: '450px' }"
+            header="{{ header }}"
+            [modal]="true"
+            class="p-fluid"
+        >
+            <ng-template pTemplate="content">
+                <!-- <div class="field">
+                    <label for="name">client</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="name"
+                        [(ngModel)]="transaction.clientId"
+                        required
+                        autofocus
+                        [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted && !transaction.clientId
+                        }"
+                    />
+                    <small
+                        class="p-error"
+                        *ngIf="submitted && !transaction.clientId"
+                        >client is required.</small
+                    >
+                </div> -->
+                <div class="field">
+                    <label for="name">ID beneficiaire</label>
+                    <input
+                        type="text"
+                        pInputText
+                        id="name"
+                        [(ngModel)]="transaction.beneficiaireId"
+                        required
+                        autofocus
+                        [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted && !transaction.beneficiaireId
+                        }"
+                    />
+                    <small
+                        class="p-error"
+                        *ngIf="submitted && !transaction.beneficiaireId"
+                        >beneficiaire is required.</small
+                    >
+                </div>
+                <div class="field">
+                    <label for="phone">montant</label>
+                    <input
+                        type="number"
+                        pInputText
+                        id="phone"
+                        [(ngModel)]="transaction.montant"
+                        required
+                        autofocus
+                        [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submitted && !transaction.montant
+                        }"
+                    />
+                    <small
+                        class="p-error"
+                        *ngIf="submitted && !transaction.montant"
+                        >Montant is required.</small
+                    >
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button
+                    pButton
+                    pRipple
+                    label="{{ 'Cancel' }}"
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    (click)="hideDialog()"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    label="{{ 'Save' }}"
+                    icon="pi pi-check"
+                    class="p-button-text"
+                    (click)="savetransaction()"
+                ></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog
+            [(visible)]="deletetransactionDialog"
+            header="Confirm"
+            [modal]="true"
+            [style]="{ width: '450px' }"
+        >
+            <div class="flex align-items-center justify-content-center">
+                <i
+                    class="pi pi-exclamation-triangle mr-3"
+                    style="font-size: 2rem"
+                ></i>
+                <span *ngIf="transaction"
+                    >{{ "Are you sure you want to delete" }}
+                    <b>{{ transaction.name }}</b
+                    >{{ "?" }}</span
+                >
+            </div>
+            <ng-template pTemplate="footer">
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    label="{{ 'No' }}"
+                    (click)="deletetransactionDialog = false"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-check"
+                    class="p-button-text"
+                    label="{{ 'Yes' }}"
+                    (click)="confirmDelete()"
+                ></button>
+            </ng-template>
+        </p-dialog>
+
+        <!-- <p-dialog
+            [(visible)]="deleteProductsDialog"
+            header="Confirm"
+            [modal]="true"
+            [style]="{ width: '450px' }"
+        >
+            <div class="flex align-items-center justify-content-center">
+                <i
+                    class="pi pi-exclamation-triangle mr-3"
+                    style="font-size: 2rem"
+                ></i>
+                <span>Are you sure you want to delete selected products?</span>
+            </div>
+            <ng-template pTemplate="footer">
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    label="No"
+                    (click)="deleteProductsDialog = false"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-check"
+                    class="p-button-text"
+                    label="Yes"
+                    (click)="confirmDeleteSelected()"
+                ></button>
+            </ng-template>
+        </p-dialog> -->
+    </div>
+</div>

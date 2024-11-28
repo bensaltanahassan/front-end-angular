@@ -1,0 +1,33 @@
+
+<div class="card">
+    <div class="img-avatar">
+        <p>😊</p>
+        
+    </div>
+    <div class="card-text">
+      <div class="portada">
+      
+      </div>
+      <div class="title-total">   
+        <div class="title">Vous avez le role: {{ role }}</div>
+        <h1>Bonjour {{ username }}</h1>
+    
+    <div class="desc">
+        <h5><li class="li">E-mail: {{ email }}</li></h5>
+        <h5><li>UserName: {{ username }}</li></h5>
+        <h5><li class="li">Role: {{ role }}</li></h5>
+        <h5><li>Your ID: {{ ID }}</li></h5>
+    </div>
+    <div class="actions">
+      <p-button [routerLink]="['/pages/transactions']">
+        MesTransactions
+      </p-button>
+    </div></div>
+   
+    </div> 
+  </div>
+  
+  
+  <h2>Votre solde est:
+      <span>{{balance}} MAD</span>
+  </h2>

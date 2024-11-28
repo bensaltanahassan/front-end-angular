@@ -1,0 +1,348 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button
+                            pButton
+                            pRipple
+                            label="{{ 'New Client' }}"
+                            icon="pi pi-plus"
+                            class="p-button-success mr-2"
+                            (click)="openNew()"
+                        ></button>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table
+                #dt
+                [columns]="cols"
+                [value]="clients"
+                responsiveLayout="scroll"
+                [rows]="10"
+                [globalFilterFields]="['name']"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 20, 30]"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [rowHover]="true"
+                dataKey="id"
+            >
+                <ng-template pTemplate="caption">
+                    <div
+                        class="flex flex-column md:flex-row md:justify-content-between md:align-items-center"
+                    >
+                        <h5 class="m-0">Clients</h5>
+                        <span class="block mt-2 md:mt-0 p-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <input
+                                pInputText
+                                type="text"
+                                (input)="onGlobalFilter(dt, $event)"
+                                placeholder="{{ 'Search...' }}"
+                                class="w-full sm:w-auto"
+                            />
+                        </span>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th
+                            [pSortableColumn]="col.field"
+                            *ngFor="let col of columns"
+                        >
+                            {{ col.header }}
+                            <p-sortIcon [field]="col.field"></p-sortIcon>
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-client>
+                    <tr>
+                        <td >
+                            {{ client?.id }}
+                        </td>
+                        <td>
+                            {{ client?.username }}
+                        </td>
+                        <td>
+                            {{ client?.email }}
+                        </td>
+                        <td>
+                            <!-- {{ client?.type }} -->
+                            <p-tag
+                                severity="{{
+                                    giveClientType(client?.balance)?.ico
+                                }}"
+                                >{{ giveClientType(client?.balance)?.type }}</p-tag
+                            >
+                        </td>
+                        <td>
+                            <!-- {{ client?.enabled }} -->
+                            <p-inputSwitch
+                                [(ngModel)]="client.enabled"
+                                (onChange)="toggleSwitch($event, client)"
+                            ></p-inputSwitch>
+                        </td>
+                        <td>
+                            {{ client?.balance }}
+                        </td>
+                        <td>2023-11-16</td>
+                        <td>
+                            <div class="flex">
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-warning p-button-text mr-2"
+                                    (click)="editClient(client)"
+                                ></button>
+                                <button
+                                    pButton
+                                    pRipple
+                                    icon="pi pi-trash"
+                                    class="p-button-rounded p-button-danger p-button-text"
+                                    (click)="deleteClient(client)"
+                                ></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+
+        <p-dialog
+            [(visible)]="clientDialog"
+            [style]="{ width: '450px' }"
+            header="{{ header }}"
+            [modal]="true"
+            class="p-fluid"
+        >
+            <ng-template pTemplate="content">
+                <form #userForm="ngForm">
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            pInputText
+                            id="username"
+                            [(ngModel)]="client.username"
+                            name="username"
+                            required
+                            autofocus
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted && !client.username
+                            }"
+                        />
+                        <small
+                            class="p-error"
+                            *ngIf="submitted && !client.username"
+                            >Name is required.</small
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            pInputText
+                            id="email"
+                            [(ngModel)]="client.email"
+                            name="email"
+                            required
+                            [ngClass]="{
+                                'ng-invalid ng-dirty': submitted && !client.email
+                            }"
+                        />
+                        <small class="p-error" *ngIf="submitted && !client.email"
+                            >Email is required.</small
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="balance">Balance</label>
+                        <input
+                            type="number"
+                            pInputText
+                            id="balance"
+                            [(ngModel)]="client.balance"
+                            name="balance"
+                            required
+                            [ngClass]="{
+                                'ng-invalid ng-dirty':
+                                    submitted && !client.balance
+                            }"
+                        />
+                        <small
+                            class="p-error"
+                            *ngIf="submitted && !client.balance"
+                            >Balance is required.</small
+                        >
+                    </div>
+                    <div
+                        #passwords="ngModelGroup"
+                        ngModelGroup="passwords"
+                        appCheckPassword
+                    >
+                        <div class="field">
+                            <label for="password">Password</label>
+                            <p-password
+                                [(ngModel)]="client.password"
+                                [toggleMask]="true"
+                                [feedback]="false"
+                                id="password"
+                                #passwordA="ngModel"
+                                name="passwordA"
+                                required
+                                [ngClass]="{
+                                    'ng-invalid ng-dirty':
+                                        submitted && !client.password
+                                }"
+                            ></p-password>
+                            <small
+                                class="p-error"
+                                *ngIf="submitted && !client.password"
+                                >password is required.</small
+                            >
+                        </div>
+                    </div>
+                </form>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button
+                    pButton
+                    pRipple
+                    label="{{ 'Cancel' }}"
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    (click)="hideDialog()"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    label="{{ 'Save' }}"
+                    icon="pi pi-check"
+                    class="p-button-text"
+                    (click)="saveclient()"
+                ></button>
+            </ng-template>
+        </p-dialog>
+
+        <p-dialog
+            [(visible)]="deleteclientDialog"
+            header="{{ 'Confirm' }}"
+            [modal]="true"
+            [style]="{ width: '450px' }"
+        >
+            <div class="flex align-items-center justify-content-center">
+                <i
+                    class="pi pi-exclamation-triangle mr-3"
+                    style="font-size: 2rem"
+                ></i>
+                <span *ngIf="client"
+                    >{{ "Are you sure you want to delete" }}
+                    <b>{{ client?.username }}</b
+                    >{{ "?" }}</span
+                >
+            </div>
+            <ng-template pTemplate="footer">
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    label="{{ 'No' }}"
+                    (click)="deleteClientDialog = false"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    icon="pi pi-check"
+                    class="p-button-text"
+                    label="{{ 'Yes' }}"
+                    (click)="confirmDelete()"
+                ></button>
+            </ng-template>
+        </p-dialog>
+        <p-dialog
+            [(visible)]="showDialogchangePWD"
+            [style]="{ width: '450px' }"
+            header="{{ header }}"
+            [modal]="true"
+            class="p-fluid"
+        >
+            <ng-template pTemplate="content">
+                <div class="field">
+                    <label for="password">New Password</label>
+                    <p-password
+                        [(ngModel)]="changePassword.newPassword"
+                        [toggleMask]="true"
+                        [feedback]="false"
+                        id="password"
+                        required
+                        autofocus
+                        [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submittedChangePass &&
+                                !changePassword.newPassword
+                        }"
+                    ></p-password>
+                    <small
+                        class="p-error"
+                        *ngIf="
+                            submittedChangePass && !changePassword.newPassword
+                        "
+                        >password is required.</small
+                    >
+                </div>
+                <div class="field">
+                    <label for="passwordc">Password confirmation</label>
+                    <p-password
+                        [(ngModel)]="changePassword.confirmPassword"
+                        [toggleMask]="true"
+                        [feedback]="false"
+                        id="passwordc"
+                        required
+                        [ngClass]="{
+                            'ng-invalid ng-dirty':
+                                submittedChangePass &&
+                                !changePassword.confirmPassword
+                        }"
+                    ></p-password>
+                    <small
+                        class="p-error"
+                        *ngIf="
+                            submittedChangePass &&
+                            !changePassword.confirmPassword
+                        "
+                        >Password confirmation is required.</small
+                    >
+                </div>
+                <div class="p-error mt-3 text-center" *ngIf="msgReponse">
+                    {{ msgReponse }}
+                </div>
+            </ng-template>
+
+            <ng-template pTemplate="footer">
+                <button
+                    pButton
+                    pRipple
+                    label="{{ 'Cancel' }}"
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    (click)="hideChangePWDDialog()"
+                ></button>
+                <button
+                    pButton
+                    pRipple
+                    label="{{ 'Save' }}"
+                    icon="pi pi-check"
+                    class="p-button-text"
+                    (click)="changePWD()"
+                ></button>
+            </ng-template>
+        </p-dialog>
+    </div>
+</div>
